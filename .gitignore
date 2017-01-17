@@ -1,0 +1,19 @@
+CMakeCache.txt
+CMakeFiles/*
+Makefile
+TestMAIL/CMakeCache.txt
+TestMAIL/CMakeFiles/*
+TestMAIL/Makefile
+TestMAIL/bin/*
+TestMAIL/cmake_install.cmake
+TestMAIL/coverage/*
+cmake_install.cmake
+lib/*
+
+# Windows
+.vs/*
+MAIL/MAIL_VS14.vcxproj.user
+MAIL_VS14.VC.VC.opendb
+MAIL_VS14.VC.db
+TestMAIL/TestMAIL_VS14.vcxproj.user
+TestMAIL/amine_mail_conf.ini
