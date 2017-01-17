@@ -69,7 +69,8 @@ CMailClient::~CMailClient()
  * @param [in] strHost server address with or without port number
  * @param [in] strLogin username
  * @param [in] strPassword password
- * @param [in] ConnectionFlags optional.
+ * @param [in] eSettingsFlags optional use | operator to choose multiple options
+ * @param [in] eSslTlsFlags optional encryption type
  *
  * @retval true   Successfully initialized the session.
  * @retval false  The session is already initialized : call CleanupSession()
@@ -82,8 +83,8 @@ CMailClient::~CMailClient()
  */
 const bool CMailClient::InitSession(const std::string& strHost, const std::string& strLogin,
                                     const std::string& strPassword,
-                                    const SettingsFlag& SettingsFlags /* = ALL_FLAGS */,
-                                    const SslTlsFlag& SslTlsFlags     /* = NO_SSLTLS */)
+                                    const SettingsFlag& eSettingsFlags /* = ALL_FLAGS */,
+                                    const SslTlsFlag& eSslTlsFlags     /* = NO_SSLTLS */)
 {
    if (strHost.empty())
    {
@@ -100,8 +101,8 @@ const bool CMailClient::InitSession(const std::string& strHost, const std::strin
    }
    m_pCurlSession = curl_easy_init();
 
-   m_eSettingsFlags = SettingsFlags;
-   m_eSslTlsFlags = SslTlsFlags;
+   m_eSettingsFlags = eSettingsFlags;
+   m_eSslTlsFlags = eSslTlsFlags;
    m_strURL = strHost;
    ParseURL(m_strURL);
    m_strUserName = strLogin;

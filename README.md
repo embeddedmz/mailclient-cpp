@@ -3,7 +3,7 @@
 
 
 ## About
-This is a simple Mail client for C++ 14. It wraps [libcurl][] for POP, SMTP and IMAP requests and meant to be a portable
+This is a simple Mail client for C++ 14. It wraps libcurl for POP, SMTP and IMAP requests and meant to be a portable
 and easy-to-use API to perform e-mail related operations.
 
 Compilation has been tested with:
@@ -64,7 +64,7 @@ CPOPClient POPClient([](const std::string& strLogMsg) { std::cout << strLogMsg <
 POPClient.InitSession("pop.gmail.com:995", "username@gmail.com", "password",
       CMailClient::SettingsFlag::ALL_FLAGS, CMailClient::SslTlsFlag::ENABLE_SSL);
 
-std::string strEmailOne;
+std::string strEmail;
 
 /* retrieve the mail number 1 and store it in strEmail */
 bool bResRcvStr = POPClient.GetString("1", strEmail);
@@ -92,7 +92,7 @@ to demonstrate the most useful methods.
 
 ## Callback to a Progress Function
 
-A pointer to a callback progress meter function or a callable object (lambda, functor etc...), which should match the prototype shown below, can be passed.
+A pointer or a callable object (lambda, functor etc...) to of a progress meter function, which should match the prototype shown below, can be passed to a CMailClient object.
 
 ```cpp
 int ProgCallback(void* ptr, double dTotalToDownload, double dNowDownloaded, double dTotalToUpload, double dNowUploaded);
@@ -102,7 +102,7 @@ This function gets called by libcurl instead of its internal equivalent with a f
 
 Returning a non-zero value from this callback will cause libcurl to abort the transfer.
 
-The unit test "TestGetMailStringSSL" demonstrates how to use a progress function to display a progress bar on console.
+The unit test "TestGetMailStringSSL" already demonstrates how to use a progress function to display a progress bar on console.
 
 ## Thread Safety
 
@@ -184,6 +184,7 @@ parameters only for the enabled tests. A template of the INI file exists already
 Example : (Run only SMTP with SSL tests)
 
 ```ini
+[tests]
 ; POP without SSL/TLS are disabled
 pop=no
 ; POP with SSL/TLS are disabled
@@ -222,7 +223,7 @@ valgrind --leak-check=full ./bin/Debug/test_mailclient /path_to_ini_file/conf.in
 The code coverage build doesn't use the static library but compiles and uses directly the 
 MailClient-C++ API in the test program.
 
-First of all, in TestMAIL/CMakeLists.txt, find and repalce :
+First of all, in TestMAIL/CodeCoverage.cmake, find and repalce :
 ```
 "/home/amzoughi/Test/amine_mail_conf.ini"
 ```
