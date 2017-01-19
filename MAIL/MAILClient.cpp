@@ -47,7 +47,7 @@ CMailClient::~CMailClient()
 {
    if (m_pCurlSession != nullptr)
    {
-      if (m_eSettingsFlags & NO_FLAGS)
+      if (m_eSettingsFlags & ENABLE_LOG)
          m_oLog(LOG_WARNING_OBJECT_NOT_CLEANED);
       
       CleanupSession();
@@ -88,7 +88,9 @@ const bool CMailClient::InitSession(const std::string& strHost, const std::strin
 {
    if (strHost.empty())
    {
-      m_oLog(LOG_ERROR_EMPTY_HOST_MSG);
+      if (m_eSettingsFlags & ENABLE_LOG)
+         m_oLog(LOG_ERROR_EMPTY_HOST_MSG);
+      
       return false;
    }
 
