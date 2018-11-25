@@ -17,3 +17,4 @@ MAIL_VS14.VC.VC.opendb
 MAIL_VS14.VC.db
 TestMAIL/TestMAIL_VS14.vcxproj.user
 TestMAIL/amine_mail_conf.ini
+*build*

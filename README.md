@@ -137,7 +137,8 @@ bool bRes = POPClient.ListUIDL(strMailList);
 ```
 
 ## Installation
-You will need CMake to generate a makefile for the static library or to build the tests program.
+
+You will need CMake to generate a makefile for the static library or to build the tests/code coverage program.
 
 Also make sure you have libcurl and Google Test installed.
 
@@ -145,32 +146,24 @@ You can follow this script https://gist.github.com/fideloper/f72997d2e2c9fbe6645
 
 This tutorial will help you installing properly Google Test on Ubuntu: https://www.eriksmistad.no/getting-started-with-google-test-on-ubuntu/
 
-The CMake script located in the tree will produce a makefile for the creation of a static library,
-whereas the one under TestMAIL will produce the unit tests program.
+The CMake script located in the tree will produce Makefiles for the creation of the static library and for the unit tests program.
 
-To create a debug static library, change directory to the one containing the first CMakeLists.txt
+To create a debug static library and a test binary, change directory to the one containing the first CMakeLists.txt and :
 
 ```Shell
-cmake . -DCMAKE_BUILD_TYPE:STRING=Debug
+mkdir build
+cd build
+cmake .. -DCMAKE_BUILD_TYPE:STRING=Debug
 make
 ```
 
 To create a release static library, just change "Debug" by "Release".
 
-The library will be found under lib/[BUILD_TYPE]/libmailclient.a
+The library will be found under "build/[Debug|Release]/lib/libmailclient.a" whereas the test program will be located in "build/[Debug|Release]/bin/test_mailclient"
 
-For the unit tests program, first build the static library and use the same build type when
-building it :
-
+To directly run the unit test binary, you must indicate the path of the INI conf file (see the section below)
 ```Shell
-cd TestMAIL/
-cmake . -DCMAKE_BUILD_TYPE=Debug     # or Release
-make
-```
-
-To run it, you must indicate the path of the INI conf file (see the section below)
-```Shell
-./bin/[BUILD_TYPE]/test_mailclient /path_to_your_ini_file/conf.ini
+./[Debug|Release]/bin/test_mailclient /path_to_your_ini_file/conf.ini
 ```
 
 ## Run Unit Tests
@@ -179,7 +172,6 @@ To run it, you must indicate the path of the INI conf file (see the section belo
 an INI configuration file. You need to fill that file with your SMTP, POP and IMAP parameters.
 You can also disable some tests (POP, SMTP with or witout SSL/TLS or IMAP tests) and indicate
 parameters only for the enabled tests. A template of the INI file exists already under TestMAIL/
-
 
 Example : (Run only SMTP with SSL tests)
 
@@ -207,6 +199,24 @@ to=<toto.africa@yahoo.com>
 cc=
 ```
 
+You can also generate an XML file of test results by adding --getst_output argument when calling the test program
+
+```Shell
+./[Debug|Release]/bin/test_mailclient /path_to_your_ini_file/conf.ini --gtest_output="xml:./TestMail.xml"
+```
+
+An alternative way to compile and run unit tests :
+
+```Shell
+mkdir build
+cd build
+cmake .. -DCMAKE_BUILD_TYPE=Debug -DTEST_INI_FILE="full_or_relative_path_to_your_test_conf.ini"
+make
+make test
+```
+
+You may use a tool like https://github.com/adarmalik/gtest2html to convert your XML test result in an HTML file.
+
 ## Memory Leak Check
 
 Visual Leak Detector has been used to check memory leaks with the Windows build (Visual Sutdio 2015)
@@ -215,7 +225,7 @@ You can download it here: https://vld.codeplex.com/
 To perform a leak check with the Linux build, you can do so :
 
 ```Shell
-valgrind --leak-check=full ./bin/Debug/test_mailclient /path_to_ini_file/conf.ini
+valgrind --leak-check=full ./Debug/bin/test_mailclient /path_to_ini_file/conf.ini
 ```
 
 ## Code Coverage
@@ -223,20 +233,18 @@ valgrind --leak-check=full ./bin/Debug/test_mailclient /path_to_ini_file/conf.in
 The code coverage build doesn't use the static library but compiles and uses directly the 
 MailClient-C++ API in the test program.
 
-First of all, in TestMAIL/CodeCoverage.cmake, find and repalce :
-```
-"/home/amzoughi/Test/amine_mail_conf.ini"
-```
-by the location of your ini file and launch the code coverage :
-
 ```Shell
-cd TestMAIL/
-cmake . -DCMAKE_BUILD_TYPE=Coverage
+mkdir build
+cd build
+cmake .. -DCMAKE_BUILD_TYPE=Coverage -DCOVERAGE_INI_FILE:STRING="full_path_to_your_test_conf.ini"
 make
 make coverage_mailclient
 ```
 
-If everything is OK, the results will be found under ./TestMail/coverage/index.html
+If everything is OK, the results will be found under ./TestMAIL/coverage/index.html
+
+Make sure you feed CMake with a full path to your test conf INI file, otherwise, the coverage test
+will be useless.
 
 Under Visual Studio, you can simply use OpenCppCoverage (https://opencppcoverage.codeplex.com/)
 
