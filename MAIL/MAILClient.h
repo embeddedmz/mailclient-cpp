@@ -34,6 +34,7 @@
 #include <string>
 #include <memory>          // std::unique_ptr
 
+#include "CurlHandle.h"
 
 class CMailClient
 {
@@ -63,6 +64,7 @@ public:
       ALL_FLAGS   = 0xFF
    };
    //enum class SslTlsFlag : unsigned char
+   // DO NOT combine them !
    enum SslTlsFlag
    {
       NO_SSLTLS  = 0x00,
@@ -105,7 +107,6 @@ public:
                           const SettingsFlag& SettingsFlags = ALL_FLAGS,
                           const SslTlsFlag& SslTlsFlags = NO_SSLTLS);
    virtual const bool CleanupSession();
-   static int GetCurlSessionCount() { return s_iCurlSession; }
    const CURL* GetCurlPointer() const { return m_pCurlSession; }
 
    static const std::string& GetCertificateFile() { return s_strCertificationAuthorityFile; }
@@ -119,6 +120,8 @@ public:
 
    void SetSSLKeyPassword(const std::string& strPwd) { m_strSSLKeyPwd = strPwd; }
    const std::string& GetSSLKeyPwd() const { return m_strSSLKeyPwd; }
+
+   inline const unsigned char GetSettingsFlags() const { return m_eSettingsFlags; }
 
 #ifdef DEBUG_CURL
    static void SetCurlTraceLogDirectory(const std::string& strPath);
@@ -165,9 +168,6 @@ protected:
    std::string          m_strSSLCertFile;
    std::string          m_strSSLKeyFile;
    std::string          m_strSSLKeyPwd;
-   
-   static std::mutex     s_mtxCurlSession; // mutex used to manage API global operations
-   volatile static int   s_iCurlSession;   // Count of the actual sessions
 
    mutable CURL*         m_pCurlSession;
    struct curl_slist*    m_pRecipientslist;
@@ -184,11 +184,16 @@ protected:
    LogFnCallback          m_oLog;
 
 #ifdef DEBUG_CURL
-      static std::string s_strCurlTraceLogDirectory;
-      std::ofstream       m_ofFileCurlTrace;
+   static std::string s_strCurlTraceLogDirectory;
+   std::ofstream       m_ofFileCurlTrace;
 #endif
 
+   CurlHandle& m_curlHandle;
 };
+
+inline CMailClient::SettingsFlag operator|(CMailClient::SettingsFlag a, CMailClient::SettingsFlag b) {
+    return static_cast<CMailClient::SettingsFlag>(static_cast<int>(a) | static_cast<int>(b));
+}
 
 // Logs messages
 #define LOG_ERROR_CURL_ALREADY_INIT_MSG       "[MAILClient][Error] Curl session is already initialized ! " \

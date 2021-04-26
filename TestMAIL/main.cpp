@@ -158,7 +158,9 @@ TEST(MailClient, TestSession)
    EXPECT_EQ(CMailClient::SslTlsFlag::NO_SSLTLS, MailClient.GetSslTlsFlags());
 
    ASSERT_TRUE(MailClient.InitSession("localhost", "foobar", "magic",
-               CMailClient::SettingsFlag::ENABLE_LOG, CMailClient::SslTlsFlag::ENABLE_TLS));
+               CMailClient::SettingsFlag::ENABLE_LOG | CMailClient::SettingsFlag::VERIFY_PEER,
+               CMailClient::SslTlsFlag::ENABLE_TLS));
+   EXPECT_EQ(CMailClient::SettingsFlag::ENABLE_LOG | CMailClient::SettingsFlag::VERIFY_PEER, MailClient.GetSettingsFlags());
    EXPECT_TRUE(MailClient.GetCurlPointer() != nullptr);
    MailClient.SetProxy("my_proxy");
    CMailClient::SetCertificateFile("ca.pem");
@@ -207,7 +209,6 @@ TEST(MailClient, TestDoubleCleanUp)
 TEST(MailClient, TestMultithreading)
 {
    const char* arrDataArray[3] = { "Thread 1", "Thread 2", "Thread 3" };
-   unsigned uInitialCount = CMailClient::GetCurlSessionCount();
 
    auto ThreadFunction = [](const char* pszThreadName)
    {
@@ -228,8 +229,6 @@ TEST(MailClient, TestMultithreading)
    FirstThread.join();                 // pauses until first finishes
    SecondThread.join();                // pauses until second finishes
    ThirdThread.join();                 // pauses until third finishes
-
-   ASSERT_EQ(uInitialCount, CMailClient::GetCurlSessionCount());
 }
 
 // SMTP Tests

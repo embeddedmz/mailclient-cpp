@@ -7,9 +7,7 @@
 #include "MAILClient.h"
 
 // Static members initialization
-volatile int   CMailClient::s_iCurlSession = 0;
 std::string    CMailClient::s_strCertificationAuthorityFile;
-std::mutex     CMailClient::s_mtxCurlSession;
 
 #ifdef DEBUG_CURL
 std::string CMailClient::s_strCurlTraceLogDirectory;
@@ -29,14 +27,9 @@ CMailClient::CMailClient(LogFnCallback Logger) :
    m_pCurlSession(nullptr),   
    m_pRecipientslist(nullptr),
    m_bProgressCallbackSet(false),
-   m_bNoSignal(false)
+   m_bNoSignal(false),
+   m_curlHandle(CurlHandle::instance())
 {
-   s_mtxCurlSession.lock();
-   if (s_iCurlSession++ == 0)
-   {
-      curl_global_init(CURL_GLOBAL_ALL);
-   }
-   s_mtxCurlSession.unlock();
 }
 
 /**
@@ -52,13 +45,6 @@ CMailClient::~CMailClient()
       
       CleanupSession();
    }
-   
-   s_mtxCurlSession.lock();
-   if (--s_iCurlSession <= 0)
-   {
-      curl_global_cleanup();
-   }
-   s_mtxCurlSession.unlock();
 }
 
 /**
