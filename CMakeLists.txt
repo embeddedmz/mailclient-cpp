@@ -6,15 +6,28 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/bin)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/lib)
 
+# Read version from file VERSION
+FILE(READ "VERSION" project_VERSION)
+STRING(STRIP "${project_VERSION}" project_VERSION)
+
+SET(LICENSE "MIT")
+cmake_policy(SET CMP0022 NEW)
+
+PROJECT(MailClient VERSION ${project_VERSION} LANGUAGES CXX)
+
 if(NOT MSVC)
 	add_definitions(-DLINUX)
 else()
 	add_definitions(-DWINDOWS)
 endif()
 
+option(SKIP_TESTS_BUILD "Skip tests build" ON)
+
 include_directories(MAIL)
 
 add_subdirectory(MAIL)
+
+if(NOT SKIP_TESTS_BUILD)
 add_subdirectory(TestMAIL)
 
 include(CTest)
@@ -28,3 +41,4 @@ IF (NOT TEST_INI_FILE)
 ENDIF()
 
 add_test (NAME MailClientTest COMMAND test_mailclient ${TEST_INI_FILE})
+endif(NOT SKIP_TESTS_BUILD)
