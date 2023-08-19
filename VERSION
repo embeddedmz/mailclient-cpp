@@ -1,1 +1,45 @@
-0.1.0
+#include <iostream>
+#include <string>
+#include <curl/curl.h>
+
+class nadertareq1@gmail.com {
+public:
+    static size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* userp) {
+        ((std::string*)userp)->append((char*)contents, size * nmemb);
+        return size * nmemb;
+    }
+
+    static void sendEmail(const std::string& recipient, const std::string& subject, const std::string& body) {
+        CURL* curl;
+        CURLcode res;
+        std::string readBuffer;
+
+        curl_global_init(CURL_GLOBAL_ALL);
+        curl = curl_easy_init();
+
+        if (curl) {
+            std::string data = "to=" + recipient + "&subject=" + subject + "&body=" + body;
+
+            curl_easy_setopt(curl, CURLOPT_URL, "https://your-email-service.com/send");
+            curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data.c_str());
+            curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+            curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
+
+            res = curl_easy_perform(curl);
+
+            if (res != CURLE_OK) {
+                std::cerr << "Error: " << curl_easy_strerror(res) << std::endl;
+            }
+
+            curl_easy_cleanup(curl);
+        }
+
+        curl_global_cleanup();
+    }
+};
+
+int main() {
+    EmailSender::sendEmail("recipient@example.com", "Alert: Maximum Consumption Reached", "Your energy consumption has reached the maximum limit.");
+
+    return 0;
+}
